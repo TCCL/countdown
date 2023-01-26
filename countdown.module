@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * module.module
+ *
+ * module
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+function countdown_help($route_name,RouteMatchInterface $route_match) {
+  switch ($route_name) {
+  case 'help.page.countdown':
+    return '
+		<h2>Countdown</h2>
+	    ';
+  }
+}
+
+/**
+ * Local Variables:
+ * mode:php
+ * End:
+ */

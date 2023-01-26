@@ -1,0 +1,14 @@
+{
+    "name": "tccl-drupal/countdown",
+    "description": "Provides a countdown field and token",
+    "type": "drupal-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Roger Gee",
+            "email": "roger.gee@tulsalibrary.org"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
