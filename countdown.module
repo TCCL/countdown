@@ -27,9 +27,12 @@ function countdown_theme($existing,$type,$theme,$path) {
   return [
     'countdown_widget' => [
       'variables' => [
+        'attributes' => [
+          'class' => 'countdown-widget',
+        ],
         'countdown_date' => '',
       ],
-    ]
+    ],
   ];
 }
 

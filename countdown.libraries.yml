@@ -1,0 +1,6 @@
+## countdown.libraries.yml
+
+widget:
+  version: 1.x
+  js:
+    js/countdown.js: {}

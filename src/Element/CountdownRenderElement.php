@@ -8,8 +8,10 @@
 
 namespace Drupal\countdown\Element;
 
+use Drupal\Core\DateTime\DrupalDateTime;
 use Drupal\Core\Render\Element\ElementInterface;
 use Drupal\Core\Render\Element\RenderElement;
+use Drupal\Core\Template\Attribute;
 
 /**
  * @RenderElement("countdown")
@@ -26,17 +28,23 @@ class CountdownRenderElement extends RenderElement implements ElementInterface {
     // Convert Date instance to string in ISO 8601 format.
     $countdownDate
       = $element['#countdown_date'] ?? self::makeDefaultCountdownDate();
-    if ($countdownDate instanceof \DateTime) {
+    if ($countdownDate instanceof \DateTime || $countdownDate instanceof DrupalDateTime) {
       $element['#countdown_date'] = $countdownDate->format('Y-m-d\TH:i:s.Z\Z');
     }
+
+    if (!($element['#attributes'] instanceof Attribute)) {
+      $element['#attributes'] = new Attribute($element['#attributes']);
+    }
+
+    return $element;
   }
 
   /**
    * Makes a default countdown date.
    */
-  protected static function makeDefaultCountdownDate(int $ndays = 1) : \DateTime {
+  protected static function makeDefaultCountdownDate(int $nhours = 1) : \DateTime {
     $dt = new \DateTime;
-    $int = new \DateInterval("PT${ndays}D");
+    $int = new \DateInterval("PT${nhours}H");
     $dt = $dt->add($int);
 
     return $dt;
@@ -58,7 +66,7 @@ class CountdownRenderElement extends RenderElement implements ElementInterface {
         ],
       ],
       '#attributes' => [
-        'class' => 'countdown-widget',
+        'class' => ['countdown-widget'],
       ],
 
       '#countdown_date' => self::makeDefaultCountdownDate(),

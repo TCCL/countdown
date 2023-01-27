@@ -8,9 +8,11 @@
 
 namespace Drupal\countdown\Plugin\Field\FieldWidget;
 
+use Drupal\Core\DateTime\DrupalDateTime;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\countdown\Plugin\Field\FieldType\CountdownFieldItem;
 
 /**
  * @FieldWidget(
@@ -51,16 +53,38 @@ class CountdownFieldWidget extends WidgetBase {
     array &$form,
     FormStateInterface $form_state)
   {
-    $dt = new \DateTime;
-    $int = new \DateInterval('PT1D');
-    $dt = $dt->add($int);
+    if (isset($items[$delta]->countdown_date)) {
+      $dt = CountdownFieldItem::fromStorageRepr($items[$delta]->countdown_date);
+    }
+    else {
+      // Let the default countdown date be one hour from the current moment.
+      $dt = new DrupalDateTime;
+      $int = new \DateInterval('PT1H');
+      $dt = $dt->add($int);
+    }
 
-    $element += [
+    $element['countdown_date'] = $element + [
       '#type' => 'datetime',
       '#title' => $this->t('Countdown Date'),
-      '#default_value' => $dt->format('Y-m-d H:i:s'),
+      '#default_value' => $dt,
+      '#description' => (
+        'The date to which the timer will count down.'
+      ),
     ];
 
     return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function massageFormValues(array $values,array $form,FormStateInterface $form_state) {
+    foreach ($values as &$item) {
+      $dateStorage = CountdownFieldItem::toStorageRepr($item['countdown_date']);
+      $item['countdown_date'] = $dateStorage;
+    }
+    unset($item);
+
+    return $values;
   }
 }

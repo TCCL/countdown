@@ -11,6 +11,7 @@ namespace Drupal\countdown\Plugin\Field\FieldFormatter;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
+//use Drupal\countdown\Plugin\Field\
 
 /**
  * @FieldFormatter(
@@ -46,12 +47,9 @@ class CountdownFieldFormatter extends FormatterBase {
   public function viewElements(FieldItemListInterface $items,$langcode = null) {
     $elements = [];
     foreach ($items as $delta => $item) {
-      $countdownDate = $item->get('countdown_date')->getValue();
-      $countdownDate = date_parse($countdownDate);
-
       $elements[$delta] = [
         '#type' => 'countdown',
-        '#countdown_date' => $countdownDate,
+        '#countdown_date' => $item->getCountdownDate(),
       ];
     }
 
