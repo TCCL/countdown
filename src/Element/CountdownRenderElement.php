@@ -29,7 +29,27 @@ class CountdownRenderElement extends RenderElement implements ElementInterface {
     $countdownDate
       = $element['#countdown_date'] ?? self::makeDefaultCountdownDate();
     if ($countdownDate instanceof \DateTime || $countdownDate instanceof DrupalDateTime) {
-      $element['#countdown_date'] = $countdownDate->format('Y-m-d\TH:i:s.Z\Z');
+      $repr = $countdownDate->format('Y-m-d\TH:i:s.000');
+
+      $tz = $countdownDate->getTimezone();
+      $offset = $tz->getOffset(new \DateTime('now',new \DateTimeZone('UTC')));
+
+      if ($offset != 0) {
+        $sign = ($offset < 0 ? '-' : '+');
+        $offset = abs($offset);
+        $hours = intdiv($offset,3600);
+        $minutes = intdiv($offset % 3600,60);
+
+        $repr .= $sign
+              . str_pad($hours,2,'0',STR_PAD_LEFT)
+              . ':'
+              . str_pad($minutes,2,'0',STR_PAD_LEFT);
+      }
+      else {
+        $repr .= 'Z';
+      }
+
+      $element['#countdown_date'] = $repr;
     }
 
     if (!($element['#attributes'] instanceof Attribute)) {
