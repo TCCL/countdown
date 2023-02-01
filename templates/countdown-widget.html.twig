@@ -8,6 +8,7 @@
  * Variables:
  *  - attributes: HTML attributes for the containing element
  *  - countdown_date: Representation of the countdown date to pass to the frontend
+ *  - countdown_settings: Additional parameters for configuring the countdown widget
  */
 #}
-<div {{ attributes }} data-countdown-date="{{ countdown_date }}"></div>
+<div {{ attributes }} data-countdown-date="{{ countdown_date }}" data-countdown-settings="{{ countdown_settings|json_encode() }}"></div>

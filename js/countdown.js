@@ -5,12 +5,47 @@
  */
 
 jQuery(document).ready(($) => {
-  function formatIntervalRaw(parts) {
-    return JSON.stringify(parts);
+  const DEFAULT_SETTINGS = {
+    format: "raw",
+    include_seconds: true
+  };
+
+  function formatIntervalRaw(parts,settings) {
+    const copy = Object.assign({},parts);
+    if (!settings.include_seconds) {
+      delete copy["s"];
+    }
+    return JSON.stringify(copy);
   }
 
-  function formatInterval(ms,_format) {
-    const format = _format || "raw";
+  function formatIntervalClock(parts,settings) {
+    const order = "dhms";
+
+    let i = 0;
+    let n = order.length;
+    let prefix = "";
+    if ("d" in parts) {
+      prefix = "+";
+    }
+    else {
+      i = 1;
+    }
+
+    if (!settings.include_seconds) {
+      n -= 1;
+    }
+
+    const components = [];
+    for (;i < n;++i) {
+      const t = parts[order[i]] || 0;
+      components.push(t.toString().padStart(2,"0"));
+    }
+
+    return prefix + components.join(":");
+  }
+
+  function formatInterval(ms,settings) {
+    const format = settings.format || "raw";
     const s = Math.floor(ms / 1000);
 
     const units = [
@@ -36,10 +71,13 @@ jQuery(document).ready(($) => {
     }
 
     if (format == "raw") {
-      return formatIntervalRaw(parts);
+      return formatIntervalRaw(parts,settings);
+    }
+    if (format == "clock") {
+      return formatIntervalClock(parts,settings);
     }
 
-    return formatIntervalRaw(parts);
+    return formatIntervalRaw(parts,settings);
   }
 
   function makeTimerCallback(info) {
@@ -48,12 +86,12 @@ jQuery(document).ready(($) => {
       const ts = info.dt.getTime();
 
       if (now > ts) {
-        info.$elem.text(formatInterval(0));
+        info.$elem.text(formatInterval(0,info.settings));
         window.clearInterval(info.intervalId);
         return;
       }
 
-      info.$elem.text(formatInterval(ts - now));
+      info.$elem.text(formatInterval(ts - now,info.settings));
     }
 
     return timerCallback;
@@ -69,12 +107,24 @@ jQuery(document).ready(($) => {
       return;
     }
 
+    let settings;
+    const settingsRaw = $elem.attr("data-countdown-settings");
+    if (settingsRaw) {
+      settings = JSON.parse(settingsRaw);
+    }
+    else {
+      // Apply default settings.
+      settings = {};
+    }
+    settings = Object.assign(DEFAULT_SETTINGS,settings);
+
     dt.setTime(ts);
-    $elem.text(formatInterval(0));
+    $elem.text(formatInterval(0,settings));
 
     const info = {
       $elem,
-      dt
+      dt,
+      settings
     };
 
     const callback = makeTimerCallback(info);

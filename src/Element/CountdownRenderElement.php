@@ -52,6 +52,10 @@ class CountdownRenderElement extends RenderElement implements ElementInterface {
       $element['#countdown_date'] = $repr;
     }
 
+    // Create countdown settings array.
+    $element['#countdown_settings']['format'] = $element['#countdown_format'];
+    $element['#countdown_settings']['include_seconds'] = $element['#countdown_include_seconds'];
+
     if (!($element['#attributes'] instanceof Attribute)) {
       $element['#attributes'] = new Attribute($element['#attributes']);
     }
@@ -62,7 +66,7 @@ class CountdownRenderElement extends RenderElement implements ElementInterface {
   /**
    * Makes a default countdown date.
    */
-  protected static function makeDefaultCountdownDate(int $nhours = 1) : \DateTime {
+  public static function makeDefaultCountdownDate(int $nhours = 1) : \DateTime {
     $dt = new \DateTime;
     $int = new \DateInterval("PT${nhours}H");
     $dt = $dt->add($int);
@@ -90,6 +94,8 @@ class CountdownRenderElement extends RenderElement implements ElementInterface {
       ],
 
       '#countdown_date' => self::makeDefaultCountdownDate(),
+      '#countdown_format' => 'clock',
+      '#countdown_include_seconds' => true,
     ];
   }
 }
