@@ -143,7 +143,7 @@ jQuery(document).ready(($) => {
       // Apply default settings.
       settings = {};
     }
-    settings = Object.assign(DEFAULT_SETTINGS,settings);
+    settings = Object.assign({},DEFAULT_SETTINGS,settings);
 
     dt.setTime(ts);
     $elem.text(formatInterval(0,settings));

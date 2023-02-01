@@ -6,8 +6,11 @@
  * module
  */
 
+use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\countdown\Element\CountdownRenderElement;
+
+require 'includes/helpers.php';
 
 /**
  * Implements hook_help().
@@ -25,7 +28,6 @@ function countdown_help($route_name,RouteMatchInterface $route_match) {
  * Implements hook_theme().
  */
 function countdown_theme($existing,$type,$theme,$path) {
-
   return [
     'countdown_widget' => [
       'variables' => [
@@ -40,6 +42,94 @@ function countdown_theme($existing,$type,$theme,$path) {
       ],
     ],
   ];
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function countdown_token_info() {
+  $info = [
+    'types' => [],
+    'tokens' => [],
+  ];
+
+  $info['types']['countdown'] = [
+    'name' => t('Countdown Timers'),
+    'description' => t('Tokens that generate countdown timers'),
+  ];
+
+  $info['tokens']['countdown']['timer'] = [
+    'name' => t('Timer'),
+    'description' => t('Timer that counts down to a specified date'),
+  ];
+
+  return $info;
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function countdown_tokens($type,$tokens,array $data,array $options,BubbleableMetadata $bubbleable_metadata) {
+  if ($type != 'countdown') {
+    return [];
+  }
+
+  $token = Drupal::service('token');
+  $replacements = [];
+
+  $timerTokens = $token->findWithPrefix($tokens,'timer');
+
+  foreach ($timerTokens as $tokenKey => $tokenValue) {
+    $params = explode(':',$tokenKey);
+    if (count($params) < 3) {
+      continue;
+    }
+
+    $date = new \DateTime(implode('',[...array_splice($params,0,3)]));
+    $settings = [
+      'format' => ['clock',false],
+      'include_seconds' => ['true','_countdown_parse_bool'],
+    ];
+
+    dpm($params);
+
+    while (true) {
+      $value = current($params);
+      if ($value === false) {
+        $value = null;
+      }
+      else {
+        next($params);
+      }
+
+      $key = key($settings);
+      if (is_null($key)) {
+        break;
+      }
+      list($default,$fn) = current($settings);
+      if (is_callable($fn)) {
+        $settings[$key] = $fn($value ?? $default);
+      }
+      else {
+        $settings[$key] = $value ?? $default;
+      }
+
+      next($settings);
+    }
+
+    dpm($settings);
+
+    $render = [
+      '#type' => 'countdown',
+      '#countdown_date' => $date,
+      '#countdown_format' => $settings['format'],
+      '#countdown_include_seconds' => $settings['include_seconds'],
+    ];
+
+    $replacements["[countdown:timer:$tokenKey]"] = render($render);
+  }
+
+  return $replacements;
 }
 
 /**
