@@ -42,19 +42,21 @@ class CountdownFieldFormatter extends FormatterBase {
 
     $form['format'] = [
       '#type' => 'select',
-      '#label' => $this->t('Format'),
+      '#title' => $this->t('Format'),
       '#description' => $this->t(
         'Configure the countdown format used to render the remaining time.'
       ),
+      '#default_value' => $this->getSetting('format'),
       '#options' => [
         'raw' => 'Raw Properties',
         'clock' => 'Clock',
+        'words' => 'Words',
       ],
     ];
 
     $form['include_seconds'] = [
       '#type' => 'checkbox',
-      '#label' => $this->t('Include Seconds'),
+      '#title' => $this->t('Include Seconds'),
       '#description' => $this->t(
         'Configure whether seconds are included in the countdown.'
       ),

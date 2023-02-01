@@ -44,6 +44,30 @@ jQuery(document).ready(($) => {
     return prefix + components.join(":");
   }
 
+  function formatIntervalWords(parts,settings) {
+    const order = [
+      ["d","day"],
+      ["h","hour"],
+      ["m","minute"],
+      ["s","second"]
+    ];
+
+    let i = 0;
+    let n = order.length;
+
+    if (!settings.include_seconds) {
+      n -= 1;
+    }
+
+    const components = [];
+    for (;i < n;++i) {
+      const t = parts[order[i][0]] || 0;
+      components.push(t.toString() + " " + order[i][1] + (t>1 ? "s" : ""));
+    }
+
+    return components.join(", ");
+  }
+
   function formatInterval(ms,settings) {
     const format = settings.format || "raw";
     const s = Math.floor(ms / 1000);
@@ -75,6 +99,9 @@ jQuery(document).ready(($) => {
     }
     if (format == "clock") {
       return formatIntervalClock(parts,settings);
+    }
+    if (format == "words") {
+      return formatIntervalWords(parts,settings);
     }
 
     return formatIntervalRaw(parts,settings);
