@@ -8,7 +8,7 @@
 
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\countdown\Element\CountdownRenderElement;
+use Drupal\countdown\Element\CountdownRenderElementBase;
 
 require 'includes/helpers.php';
 
@@ -34,7 +34,19 @@ function countdown_theme($existing,$type,$theme,$path) {
         'attributes' => [
           'class' => 'countdown-widget',
         ],
-        'countdown_date' => CountdownRenderElement::makeDefaultCountdownDate(),
+        'countdown_date' => CountdownRenderElementBase::makeDefaultCountdownDate(),
+        'countdown_settings' => [
+          'include_seconds' => true,
+        ],
+      ],
+    ],
+
+    'countdown_inline' => [
+      'variables' => [
+        'attributes' => [
+          'class' => 'countdown-inline',
+        ],
+        'countdown_date' => CountdownRenderElementBase::makeDefaultCountdownDate(),
         'countdown_settings' => [
           'format' => 'clock',
           'include_seconds' => true,
@@ -91,8 +103,6 @@ function countdown_tokens($type,$tokens,array $data,array $options,BubbleableMet
       'include_seconds' => ['true','_countdown_parse_bool'],
     ];
 
-    dpm($params);
-
     while (true) {
       $value = current($params);
       if ($value === false) {
@@ -117,10 +127,8 @@ function countdown_tokens($type,$tokens,array $data,array $options,BubbleableMet
       next($settings);
     }
 
-    dpm($settings);
-
     $render = [
-      '#type' => 'countdown',
+      '#type' => 'countdown_inline',
       '#countdown_date' => $date,
       '#countdown_format' => $settings['format'],
       '#countdown_include_seconds' => $settings['include_seconds'],

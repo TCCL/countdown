@@ -1,20 +1,19 @@
 <?php
 
 /**
- * CountdownRenderElement.php
+ * CountdownInlineRenderElement.php
  *
  * countdown
  */
 
 namespace Drupal\countdown\Element;
 
-use Drupal\Core\DateTime\DrupalDateTime;
 use Drupal\Core\Render\Element\ElementInterface;
 
 /**
- * @RenderElement("countdown")
+ * @RenderElement("countdown_inline")
  */
-class CountdownRenderElement extends CountdownRenderElementBase implements ElementInterface {
+class CountdownInlineRenderElement extends CountdownRenderElementBase implements ElementInterface {
   /**
    * Pre-renders the render element.
    *
@@ -26,6 +25,7 @@ class CountdownRenderElement extends CountdownRenderElementBase implements Eleme
     $element = parent::preRender($element);
 
     // Create countdown settings array.
+    $element['#countdown_settings']['format'] = $element['#countdown_format'];
     $element['#countdown_settings']['include_seconds'] = $element['#countdown_include_seconds'];
 
     return $element;
@@ -37,20 +37,21 @@ class CountdownRenderElement extends CountdownRenderElementBase implements Eleme
   public function getInfo() {
     return [
       '#input' => true,
-      '#theme' => 'countdown_widget',
+      '#theme' => 'countdown_inline',
       '#pre_render' => [
         [get_class(),'preRender'],
       ],
       '#attached' => [
         'library' => [
-          'countdown/widget',
+          'countdown/inline',
         ],
       ],
       '#attributes' => [
-        'class' => ['countdown-widget'],
+        'class' => ['countdown-inline'],
       ],
 
       '#countdown_date' => self::makeDefaultCountdownDate(),
+      '#countdown_format' => 'clock',
       '#countdown_include_seconds' => true,
     ];
   }

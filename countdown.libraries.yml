@@ -4,3 +4,11 @@ widget:
   version: 1.x
   js:
     js/countdown.js: {}
+  css:
+    theme:
+      css/countdown.css: {}
+
+inline:
+  version: 1.x
+  js:
+    js/countdown.js: {}

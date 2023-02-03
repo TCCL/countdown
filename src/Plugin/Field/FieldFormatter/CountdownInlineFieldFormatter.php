@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CountdownFieldFormatter.php
+ * CountdownInlineFieldFormatter.php
  *
  * countdown
  */
@@ -14,20 +14,21 @@ use Drupal\Core\Form\FormStateInterface;
 
 /**
  * @FieldFormatter(
- *   id = "countdown",
- *   label = "Countdown",
+ *   id = "countdown_inline",
+ *   label = "Inline Countdown",
  *   field_types = {
  *     "countdown"
  *   }
  * )
  */
-class CountdownFieldFormatter extends FormatterBase {
+class CountdownInlineFieldFormatter extends FormatterBase {
   /**
    * {@inheritdoc}
    */
   public static function defaultSettings() {
     $settings = parent::defaultSettings();
 
+    $settings['format'] = 'clock';
     $settings['include_seconds'] = true;
 
     return $settings;
@@ -38,6 +39,20 @@ class CountdownFieldFormatter extends FormatterBase {
    */
   public function settingsForm(array $form,FormStateInterface $form_state) {
     $form = parent::settingsForm($form,$form_state);
+
+    $form['format'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Format'),
+      '#description' => $this->t(
+        'Configure the countdown format used to render the remaining time.'
+      ),
+      '#default_value' => $this->getSetting('format'),
+      '#options' => [
+        'raw' => 'Raw Properties',
+        'clock' => 'Clock',
+        'words' => 'Words',
+      ],
+    ];
 
     $form['include_seconds'] = [
       '#type' => 'checkbox',
@@ -57,14 +72,16 @@ class CountdownFieldFormatter extends FormatterBase {
    */
   public function viewElements(FieldItemListInterface $items,$langcode = null) {
     $settings = [
+      'format' => $this->getSetting('format'),
       'include_seconds' => $this->getSetting('include_seconds'),
     ];
 
     $elements = [];
     foreach ($items as $delta => $item) {
       $elements[$delta] = [
-        '#type' => 'countdown',
+        '#type' => 'countdown_inline',
         '#countdown_date' => $item->getCountdownDate(),
+        '#countdown_format' => $settings['format'],
         '#countdown_include_seconds' => $settings['include_seconds'],
       ];
     }

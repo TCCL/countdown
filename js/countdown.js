@@ -5,8 +5,12 @@
  */
 
 jQuery(document).ready(($) => {
-  const DEFAULT_SETTINGS = {
+  const DEFAULT_INLINE_SETTINGS = {
     format: "raw",
+    include_seconds: true
+  };
+
+  const DEFAULT_WIDGET_SETTINGS = {
     include_seconds: true
   };
 
@@ -94,6 +98,9 @@ jQuery(document).ready(($) => {
       ns %= unit[0];
     }
 
+    if (format == "_parts") {
+      return parts;
+    }
     if (format == "raw") {
       return formatIntervalRaw(parts,settings);
     }
@@ -107,7 +114,7 @@ jQuery(document).ready(($) => {
     return formatIntervalRaw(parts,settings);
   }
 
-  function makeTimerCallback(info) {
+  function makeTimerInlineCallback(info) {
     function timerCallback() {
       const now = Date.now();
       const ts = info.dt.getTime();
@@ -121,12 +128,14 @@ jQuery(document).ready(($) => {
       info.$elem.text(formatInterval(ts - now,info.settings));
     }
 
+    timerCallback();
+
     return timerCallback;
   }
 
-  function prepareCountdown(index) {
+  function prepareCountdownInline(index) {
     const $elem = $(this);
-    const dateString = $elem.attr("data-countdown-date");
+    const dateString = $elem.attr("data-countdown-inline");
     const dt = new Date();
 
     const ts = Date.parse(dateString);
@@ -143,10 +152,9 @@ jQuery(document).ready(($) => {
       // Apply default settings.
       settings = {};
     }
-    settings = Object.assign({},DEFAULT_SETTINGS,settings);
+    settings = Object.assign({},DEFAULT_INLINE_SETTINGS,settings);
 
     dt.setTime(ts);
-    $elem.text(formatInterval(0,settings));
 
     const info = {
       $elem,
@@ -154,10 +162,97 @@ jQuery(document).ready(($) => {
       settings
     };
 
-    const callback = makeTimerCallback(info);
+    const callback = makeTimerInlineCallback(info);
     info.intervalId = window.setInterval(callback,1000);
   }
 
-  const elems = $("[data-countdown-date]");
-  elems.each(prepareCountdown);
+  function makeTimerWidgetCallback(info) {
+    const $container = {
+      "d": info.$elem.find("[data-countdown-days]"),
+      "h": info.$elem.find("[data-countdown-hours]"),
+      "m": info.$elem.find("[data-countdown-minutes]"),
+      "s": info.$elem.find("[data-countdown-seconds]")
+    };
+
+    const $update = {
+      "d": info.$elem.find("[data-countdown-value-days]"),
+      "h": info.$elem.find("[data-countdown-value-hours]"),
+      "m": info.$elem.find("[data-countdown-value-minutes]"),
+      "s": info.$elem.find("[data-countdown-value-seconds]")
+    };
+
+    info.settings.format = "_parts";
+    if (!info.settings.include_seconds) {
+      $container["s"].hide();
+      $update["s"] = null;
+    }
+
+    function updateFromParts(parts) {
+      const order = "dhms";
+
+      for (let i = 0;i < order.length;++i) {
+        const $elem = $update[order[i]];
+        const value = parts[order[i]] || 0;
+
+        if ($elem) {
+          $elem.text(value);
+        }
+      }
+    }
+
+    function timerCallback() {
+      const now = Date.now();
+      const ts = info.dt.getTime();
+
+      if (now > ts) {
+        const parts = formatInterval(0,info.settings);
+        updateFromParts(parts);
+        window.clearInterval(info.intervalId);
+        return;
+      }
+
+      const parts = formatInterval(ts - now,info.settings);
+      updateFromParts(parts);
+    }
+
+    timerCallback();
+
+    return timerCallback;
+  }
+
+  function prepareCountdownWidget(index) {
+    const $elem = $(this);
+    const dateString = $elem.attr("data-countdown-widget");
+    const dt = new Date();
+
+    const ts = Date.parse(dateString);
+    if (isNaN(ts)) {
+      return;
+    }
+
+    let settings;
+    const settingsRaw = $elem.attr("data-countdown-settings");
+    if (settingsRaw) {
+      settings = JSON.parse(settingsRaw);
+    }
+    else {
+      // Apply default settings.
+      settings = {};
+    }
+    settings = Object.assign({},DEFAULT_WIDGET_SETTINGS,settings);
+
+    dt.setTime(ts);
+
+    const info = {
+      $elem,
+      dt,
+      settings
+    };
+
+    const callback = makeTimerWidgetCallback(info);
+    info.intervalId = window.setInterval(callback,1000);
+  }
+
+  $("[data-countdown-inline]").each(prepareCountdownInline);
+  $("[data-countdown-widget]").each(prepareCountdownWidget);
 });

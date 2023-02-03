@@ -1,9 +1,9 @@
 {#
 /**
  * @file
- * Default theme implementation for field_table_of_contents_field.
+ * Default theme implementation for countdown widget.
  *
- * This template is used to render the table of contents field value.
+ * This template is used to render the countdown widget render element.
  *
  * Variables:
  *  - attributes: HTML attributes for the containing element
@@ -11,4 +11,29 @@
  *  - countdown_settings: Additional parameters for configuring the countdown widget
  */
 #}
-<span {{ attributes }} data-countdown-date="{{ countdown_date }}" data-countdown-settings="{{ countdown_settings|json_encode() }}"></span>
+<div {{ attributes }} data-countdown-widget="{{ countdown_date }}" data-countdown-settings="{{ countdown_settings|json_encode() }}">
+  <div class="countdown-widget__property countdown-widget__property--days" data-countdown-days="1">
+    <div class="countdown-widget__value-wrapper">
+      <span class="countdown-widget__value" data-countdown-value-days="1"></span>
+    </div>
+    <div class="countdown-widget__label">Days</div>
+  </div>
+  <div class="countdown-widget__property countdown-widget__property--hours" data-countdown-hours="1">
+    <div class="countdown-widget__value-wrapper">
+      <span class="countdown-widget__value" data-countdown-value-hours="1"></span>
+    </div>
+    <div class="countdown-widget__label">Hours</div>
+  </div>
+  <div class="countdown-widget__property countdown-widget__property--minutes" data-countdown-minutes="1">
+    <div class="countdown-widget__value-wrapper">
+      <span class="countdown-widget__value" data-countdown-value-minutes="1"></span>
+    </div>
+    <div class="countdown-widget__label">Minutes</div>
+  </div>
+  <div class="countdown-widget__property countdown-widget__property--seconds" data-countdown-seconds="1">
+    <div class="countdown-widget__value-wrapper">
+      <span class="countdown-widget__value" data-countdown-value-seconds="1"></span>
+    </div>
+    <div class="countdown-widget__label">Seconds</div>
+  </div>
+</div>

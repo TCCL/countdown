@@ -1,0 +1,29 @@
+/* countdown.css */
+
+.countdown-widget {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+.countdown-widget__property {
+  margin: 0.25rem 1.25rem;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+}
+
+.countdown-widget__value-wrapper {
+  width: 100%;
+  text-align: center;
+}
+
+.countdown-widget__value {
+  font-size: 3rem;
+}
+
+.countdown-widget__label {
+  text-align: center;
+  width: 100%;
+  color: #1f1f1f;
+}
