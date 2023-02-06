@@ -86,6 +86,7 @@ function countdown_tokens($type,$tokens,array $data,array $options,BubbleableMet
     return [];
   }
 
+  $renderer = Drupal::service('renderer');
   $token = Drupal::service('token');
   $replacements = [];
 
@@ -134,7 +135,12 @@ function countdown_tokens($type,$tokens,array $data,array $options,BubbleableMet
       '#countdown_include_seconds' => $settings['include_seconds'],
     ];
 
-    $replacements["[countdown:timer:$tokenKey]"] = render($render);
+    if ($renderer->hasRenderContext()) {
+      $replacements["[countdown:timer:$tokenKey]"] = $renderer->render($render);
+    }
+    else {
+      $replacements["[countdown:timer:$tokenKey]"] = $renderer->renderRoot($render);
+    }
   }
 
   return $replacements;
