@@ -128,12 +128,21 @@ function countdown_tokens($type,$tokens,array $data,array $options,BubbleableMet
       next($settings);
     }
 
-    $render = [
-      '#type' => 'countdown_inline',
-      '#countdown_date' => $date,
-      '#countdown_format' => $settings['format'],
-      '#countdown_include_seconds' => $settings['include_seconds'],
-    ];
+    if ($settings['format'] == 'widget') {
+      $render = [
+        '#type' => 'countdown',
+        '#countdown_date' => $date,
+        '#countdown_include_seconds' => $settings['include_seconds'],
+      ];
+    }
+    else {
+      $render = [
+        '#type' => 'countdown_inline',
+        '#countdown_date' => $date,
+        '#countdown_format' => $settings['format'],
+        '#countdown_include_seconds' => $settings['include_seconds'],
+      ];
+    }
 
     if ($renderer->hasRenderContext()) {
       $replacements["[countdown:timer:$tokenKey]"] = $renderer->render($render);
