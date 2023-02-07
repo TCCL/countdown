@@ -1,9 +1,9 @@
 <?php
 
 /**
- * module.module
+ * countdown.module
  *
- * module
+ * countdown
  */
 
 use Drupal\Core\Render\BubbleableMetadata;
@@ -19,8 +19,13 @@ function countdown_help($route_name,RouteMatchInterface $route_match) {
   switch ($route_name) {
   case 'help.page.countdown':
     return '
-		  <h2>Countdown</h2>
-	    ';
+		  <h3>About</h3>
+	    <p>This module provides countdown timers. Countdown timers can be utilized via the following mechanisms:</p>
+      <ul>
+        <li>Render Element (i.e. programmatically)</li>
+        <li>Field Type</li>
+        <li>Token</li>
+      </ul>';
   }
 }
 
