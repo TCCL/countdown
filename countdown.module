@@ -1,0 +1,167 @@
+<?php
+
+/**
+ * countdown.module
+ *
+ * countdown
+ */
+
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\countdown\Element\CountdownRenderElementBase;
+
+require 'includes/helpers.php';
+
+/**
+ * Implements hook_help().
+ */
+function countdown_help($route_name,RouteMatchInterface $route_match) {
+  switch ($route_name) {
+  case 'help.page.countdown':
+    return '
+		  <h3>About</h3>
+	    <p>This module provides countdown timers. Countdown timers can be utilized via the following mechanisms:</p>
+      <ul>
+        <li>Render Element (i.e. programmatically)</li>
+        <li>Field Type</li>
+        <li>Token</li>
+      </ul>';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function countdown_theme($existing,$type,$theme,$path) {
+  return [
+    'countdown_widget' => [
+      'variables' => [
+        'attributes' => [
+          'class' => 'countdown-widget',
+        ],
+        'countdown_date' => CountdownRenderElementBase::makeDefaultCountdownDate(),
+        'countdown_settings' => [
+          'include_seconds' => true,
+        ],
+      ],
+    ],
+
+    'countdown_inline' => [
+      'variables' => [
+        'attributes' => [
+          'class' => 'countdown-inline',
+        ],
+        'countdown_date' => CountdownRenderElementBase::makeDefaultCountdownDate(),
+        'countdown_settings' => [
+          'format' => 'clock',
+          'include_seconds' => true,
+        ],
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function countdown_token_info() {
+  $info = [
+    'types' => [],
+    'tokens' => [],
+  ];
+
+  $info['types']['countdown'] = [
+    'name' => t('Countdown Timers'),
+    'description' => t('Tokens that generate countdown timers'),
+  ];
+
+  $info['tokens']['countdown']['timer'] = [
+    'name' => t('Timer'),
+    'description' => t('Timer that counts down to a specified date'),
+  ];
+
+  return $info;
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function countdown_tokens($type,$tokens,array $data,array $options,BubbleableMetadata $bubbleable_metadata) {
+  if ($type != 'countdown') {
+    return [];
+  }
+
+  $renderer = Drupal::service('renderer');
+  $token = Drupal::service('token');
+  $replacements = [];
+
+  $timerTokens = $token->findWithPrefix($tokens,'timer');
+
+  foreach ($timerTokens as $tokenKey => $tokenValue) {
+    $params = explode(':',$tokenKey);
+    if (count($params) < 3) {
+      continue;
+    }
+
+    $date = new \DateTime(implode('',[...array_splice($params,0,3)]));
+    $settings = [
+      'format' => ['clock',false],
+      'include_seconds' => ['true','_countdown_parse_bool'],
+    ];
+
+    while (true) {
+      $value = current($params);
+      if ($value === false) {
+        $value = null;
+      }
+      else {
+        next($params);
+      }
+
+      $key = key($settings);
+      if (is_null($key)) {
+        break;
+      }
+      list($default,$fn) = current($settings);
+      if (is_callable($fn)) {
+        $settings[$key] = $fn($value ?? $default);
+      }
+      else {
+        $settings[$key] = $value ?? $default;
+      }
+
+      next($settings);
+    }
+
+    if ($settings['format'] == 'widget') {
+      $render = [
+        '#type' => 'countdown',
+        '#countdown_date' => $date,
+        '#countdown_include_seconds' => $settings['include_seconds'],
+      ];
+    }
+    else {
+      $render = [
+        '#type' => 'countdown_inline',
+        '#countdown_date' => $date,
+        '#countdown_format' => $settings['format'],
+        '#countdown_include_seconds' => $settings['include_seconds'],
+      ];
+    }
+
+    if ($renderer->hasRenderContext()) {
+      $replacements["[countdown:timer:$tokenKey]"] = $renderer->render($render);
+    }
+    else {
+      $replacements["[countdown:timer:$tokenKey]"] = $renderer->renderRoot($render);
+    }
+  }
+
+  return $replacements;
+}
+
+/**
+ * Local Variables:
+ * mode:php
+ * End:
+ */
