@@ -66,7 +66,7 @@ jQuery(document).ready(($) => {
     const components = [];
     for (;i < n;++i) {
       const t = parts[order[i][0]] || 0;
-      components.push(t.toString() + " " + order[i][1] + (t>1 ? "s" : ""));
+      components.push(t.toString() + " " + order[i][1] + (t!=1 ? "s" : ""));
     }
 
     return components.join(", ");
