@@ -5,6 +5,6 @@ description: Provides a countdown field and token
 package: 'TCCL Custom'
 type: module
 core_version_requirement: ^8.7.7 || ^9
-version: 1.0.0
+version: 1.0.1
 
 php: 7.3
