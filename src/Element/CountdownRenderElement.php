@@ -8,7 +8,6 @@
 
 namespace Drupal\countdown\Element;
 
-use Drupal\Core\DateTime\DrupalDateTime;
 use Drupal\Core\Render\Element\ElementInterface;
 
 /**
